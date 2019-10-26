@@ -66,7 +66,14 @@ class NMT(nn.Module):
         ###         https://pytorch.org/docs/stable/nn.html#torch.nn.Linear
         ###     Dropout Layer:
         ###         https://pytorch.org/docs/stable/nn.html#torch.nn.Dropout
-
+        self.encoder = nn.LSTM(input_size=embed_size, hidden_size=self.hidden_size, dropout=self.dropout_rate, bias=True, bidirectional=True)
+        self.decoder = nn.LSTM(input_size=embed_size, hidden_size=self.hidden_size, dropout=self.dropout_rate, bias=True, bidirectional=False)
+        self.h_projection = nn.Linear(in_features=self.hidden_size, out_features=2*self.hidden_size, bias=False)
+        self.c_projection = nn.Linear(in_features=self.hidden_size, out_features=2*self.hidden_size, bias=False)
+        self.att_projection = nn.Linear(in_features=self.hidden_size, out_features=2*self.hidden_size, bias=False)
+        self.combined_output_projection = nn.Linear(in_features=self.hidden_size, out_features=3*self.hidden_size, bias=False)
+        self.target_vocab_projection = nn.Linear(in_features=len(self.vocab.tgt), out_features=self.hidden_size, bias=False)
+        self.dropout = nn.Dropout(p=self.dropout_rate)
         ### END YOUR CODE
 
     def forward(self, source: List[List[str]], target: List[List[str]]) -> torch.Tensor:
