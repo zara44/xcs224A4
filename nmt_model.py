@@ -68,8 +68,8 @@ class NMT(nn.Module):
         ###         https://pytorch.org/docs/stable/nn.html#torch.nn.Dropout
         self.encoder = nn.LSTM(input_size=embed_size, hidden_size=self.hidden_size, dropout=self.dropout_rate, bias=True, bidirectional=True)
         self.decoder = nn.LSTM(input_size=embed_size, hidden_size=self.hidden_size, dropout=self.dropout_rate, bias=True, bidirectional=False)
-        self.h_projection = nn.Linear(in_features=self.hidden_size, out_features=2*self.hidden_size, bias=False)
-        self.c_projection = nn.Linear(in_features=self.hidden_size, out_features=2*self.hidden_size, bias=False)
+        self.h_projection = nn.Linear(in_features=2*self.hidden_size, out_features=self.hidden_size, bias=False)
+        self.c_projection = nn.Linear(in_features=2*self.hidden_size, out_features=self.hidden_size, bias=False)
         self.att_projection = nn.Linear(in_features=self.hidden_size, out_features=2*self.hidden_size, bias=False)
         self.combined_output_projection = nn.Linear(in_features=self.hidden_size, out_features=3*self.hidden_size, bias=False)
         self.target_vocab_projection = nn.Linear(in_features=len(self.vocab.tgt), out_features=self.hidden_size, bias=False)
@@ -162,12 +162,14 @@ class NMT(nn.Module):
         ###         https://pytorch.org/docs/stable/torch.html#torch.cat
         ###     Tensor Permute:
         ###         https://pytorch.org/docs/stable/tensors.html#torch.Tensor.permute
-        X = self.model_embeddings(source_padded)
+        X = self.model_embeddings.source(source_padded)
         X_packed = torch.nn.utils.rnn.pack_padded_sequence(X, source_lengths)
-        enc_hiddens, last_hidden, last_cell = self.encoder(X_packed)
-        enc_hiddens = nn.utils.rnn.pad_packed_sequence(enc_hiddens, batch_first=True)
-        init_decoder_hidden = self.h_projection(torch.cat(last_hidden))
-        init_decoder_cell = self.c_projection(torch.cat(last_cell))
+        enc_hiddens_packed, last_tuple = self.encoder(X_packed)
+        last_hidden = last_tuple[0]
+        last_cell = last_tuple[1]
+        enc_hiddens = nn.utils.rnn.pad_packed_sequence(enc_hiddens_packed, batch_first=True)[0]
+        init_decoder_hidden = self.h_projection(torch.cat((last_hidden[0][:][:],last_hidden[1][:][:]),1))
+        init_decoder_cell = self.c_projection(torch.cat((last_cell[0][:][:],last_cell[1][:][:]),1))
         dec_init_state = (init_decoder_hidden, init_decoder_cell)
         ### END YOUR CODE
 
