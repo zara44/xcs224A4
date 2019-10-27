@@ -199,7 +199,7 @@ def question_1f_sanity_check(model, src_sents, tgt_sents, vocab):
 def main():
     """ Main func.
     """
-    args = docopt(__doc__, argv=['1d'])
+    args = docopt(__doc__, argv=['1e'])
 
     # Check Python & PyTorch Versions
     assert (sys.version_info >= (3, 5)), "Please update your installation of Python to version >= 3.5"

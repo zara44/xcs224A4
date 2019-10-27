@@ -240,7 +240,14 @@ class NMT(nn.Module):
         ###         https://pytorch.org/docs/stable/torch.html#torch.stack
         enc_hiddens_proj = self.att_projection(enc_hiddens)
         Y = self.model_embeddings.target(target_padded)
-        # todo: working on step 3
+        Y_split = torch.split(Y,1, dim=0)
+        for y in Y_split:
+            y_t = torch.squeeze(y)
+            ybar_t = torch.cat((y_t,o_prev), dim=1)
+            dec_state, combined_output, e_t = self.step(ybar_t,dec_state,enc_hiddens, enc_hiddens_proj, enc_masks=None)
+            combined_outputs.append(combined_output)
+            o_prev = combined_output
+        combined_outputs = torch.stack(combined_outputs, dim=0)
         ### END YOUR CODE
 
         return combined_outputs
