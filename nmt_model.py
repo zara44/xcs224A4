@@ -70,9 +70,9 @@ class NMT(nn.Module):
         self.decoder = nn.LSTM(input_size=embed_size, hidden_size=self.hidden_size, dropout=self.dropout_rate, bias=True, bidirectional=False)
         self.h_projection = nn.Linear(in_features=2*self.hidden_size, out_features=self.hidden_size, bias=False)
         self.c_projection = nn.Linear(in_features=2*self.hidden_size, out_features=self.hidden_size, bias=False)
-        self.att_projection = nn.Linear(in_features=self.hidden_size, out_features=2*self.hidden_size, bias=False)
-        self.combined_output_projection = nn.Linear(in_features=self.hidden_size, out_features=3*self.hidden_size, bias=False)
-        self.target_vocab_projection = nn.Linear(in_features=len(self.vocab.tgt), out_features=self.hidden_size, bias=False)
+        self.att_projection = nn.Linear(in_features=2*self.hidden_size, out_features=self.hidden_size, bias=False)
+        self.combined_output_projection = nn.Linear(in_features=3*self.hidden_size, out_features=self.hidden_size, bias=False)
+        self.target_vocab_projection = nn.Linear(out_features=len(self.vocab.tgt), in_features=self.hidden_size, bias=False)
         self.dropout = nn.Dropout(p=self.dropout_rate)
         ### END YOUR CODE
 
