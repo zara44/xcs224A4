@@ -49,7 +49,8 @@ from nmt_model import Hypothesis, NMT
 from tqdm import tqdm
 from utils import read_corpus, batch_iter
 from vocab import Vocab
-
+import warnings
+warnings.filterwarnings("ignore")
 
 def evaluate_ppl(model, dev_data, batch_size=32):
     """ Evaluate perplexity on dev sentences
